@@ -4,8 +4,6 @@ import '@vkontakte/vkui/dist/vkui.css';
 import './css/App.css'
 import html2canvas from 'html2canvas';
 
-import eruda from 'eruda';
-
 import { Panel, Title, Footer, View , SimpleCell, ScreenSpinner, Avatar , Button, Snackbar } from '@vkontakte/vkui';
 
 import Icon28StoryOutline from '@vkontakte/icons/dist/28/story_outline';
@@ -76,7 +74,8 @@ class App extends React.Component {
 			activePanel: 'main',
 			scheme: 'bright_light',
 
-			can_generate: true
+			can_generate: true,
+			first_loaded: false
 		};
 
 		this.componentDidMount = this.componentDidMount.bind(this);
@@ -98,7 +97,6 @@ class App extends React.Component {
 		this.setState({ photo: user.photo_max_orig, name: user.first_name + ' ' + user.last_name });
 
 		await bridge.send('VKWebAppInit');
-		eruda.init();
 	}
 
 	go(panel) {
@@ -132,6 +130,18 @@ class App extends React.Component {
 											onClose={() => this.setState({ snackbar: null })}
 										>
 											Необходимо разрешение на получение сообщений
+										</Snackbar>
+								});
+								return;
+							}
+
+							if(this.state.first_loaded && !this.state.shared){
+								this.setState({ snackbar:
+										<Snackbar
+											layout='vertical'
+											onClose={() => this.setState({ snackbar: null })}
+										>
+											Сначала нужно поделиться в истории
 										</Snackbar>
 								});
 								return;
@@ -206,7 +216,7 @@ class App extends React.Component {
 							let c3 = country[2][random.int(0, country[2].length-1)];
 							let c4 = country[3][random.int(0, country[3].length-1)];
 
-							this.setState({ p1, p2, p3, p4, c1, c2, c3, c4, can_generate: false });
+							this.setState({ p1, p2, p3, p4, c1, c2, c3, c4, can_generate: false, first_loaded: true });
 						}.bind(this);
 					} else {
 						this.setState({ snackbar:
